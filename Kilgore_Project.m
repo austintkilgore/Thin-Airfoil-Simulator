@@ -13,7 +13,8 @@ naca = input("Enter 4-Digit NACA Number: ",'s'); % the four-digit NACA designati
 aoa = input("Enter Angle of Attack (in degrees): "); 
 % angle of attack; enter value in degrees; the limit is ~10
 
-fprintf("Note: Process Takes ~10 seconds (depending on parfor)\n") % info for user
+fprintf("Note: Process Takes ~10 seconds (depending on parfor and if" + ...
+    " program was used recently)\n") % info for user
 
 
 
@@ -115,10 +116,14 @@ yl = [-2 2];
 flim = 500; % number of desired fourier coefficients plus one 
 % (for the circulation per unit length equation)
 
+if max_cam == 0
+    a_0 = aoa; % symmetric failsafe
+else
 a_0 = aoa - (1/pi)*(((2*max_cam/(peak_loc^2))*((peak_loc-0.5)*...
     peak_loc_theta+0.5*sin(peak_loc_theta)))+...
     ((2*max_cam/((1-peak_loc)^2))*(peak_loc*(pi-peak_loc_theta)+...
     0.5*peak_loc_theta-0.5*sin(peak_loc_theta)-(pi/2)))); % A_0
+end
 
 a_n = linspace(0,0,flim); % initialize vector for A_n's
 
@@ -138,6 +143,9 @@ for n = 1:flim % A_n's, n ~= 0
             (0.5*(n^2)*cos(peak_loc_theta))+peak_loc-0.5))+...
             ((n^2)*(peak_loc-1)-peak_loc+0.5)+(0.5*n*sin(peak_loc_theta)*...
             cos(n*peak_loc_theta))))); % credit to wolfram for integrals
+    end
+    if isnan(a_n(n))
+        a_n(n) = 0; % symmetric failsafe
     end
 end
 
